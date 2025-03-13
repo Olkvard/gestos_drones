@@ -1,0 +1,24 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual env
+venv/
+.env/
+
+# IDEs
+.idea/
+.vscode/
+
+# Logs y cachés
+*.Logs
+*.sqlite3
+.cache/
+pytest_cache/
+*.bin
+*.pickle
+
+# Archivos
+*.png
+*.pkl
