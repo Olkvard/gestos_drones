@@ -1,12 +1,11 @@
 import cv2
 import os
 import numpy as np
-from constants import MP_HANDS, HANDS, MP_DRAWING, DATA_FOLDER, CAMERA_INDEX, FRAME_WIDTH, FRAME_HEIGHT
+from src.constants import MP_HANDS, HANDS, MP_DRAWING, DATA_FOLDER, CAMERA_INDEX, FRAME_WIDTH, FRAME_HEIGHT, SIGNS
 
 # Configuración de OpenCV
-capture_count = 0
+capture_count = 5500
 i = 0
-sign = ["Strike", "Recce1", "Recce2", "Recce3", "Aterrizar", "Desactivar"] # Inicializar con la primera letra
 
 cap = cv2.VideoCapture(CAMERA_INDEX)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, FRAME_WIDTH)
@@ -33,7 +32,7 @@ while cap.isOpened():
             # Captura una imagen de la mano cada frame
             # (Elimina la condición de cada 30 frames para capturar más rápido)
             # Además, verifica si hemos capturado suficientes imágenes para la letra actual
-            if capture_count < 500:
+            if capture_count < 6000:
                 # Convierte los landmarks a un array NumPy
                 landmarks_array = np.array([[int(lm.x * frame.shape[1]), int(lm.y * frame.shape[0])] for lm in hand_landmarks.landmark[0:21]])
 
@@ -42,21 +41,21 @@ while cap.isOpened():
                 hand_roi = frame[y:y+h, x:x+w]
 
                 # Guarda la imagen en la carpeta correspondiente a la letra del abecedario
-                folder_path = f"{DATA_FOLDER}/{sign[i]}"
+                folder_path = f"{DATA_FOLDER}/{SIGNS[i]}"
                 if not os.path.exists(folder_path):
                     os.makedirs(folder_path)
 
-                cv2.imwrite(f"{folder_path}/{sign[i]}_{capture_count}.png", hand_roi)
+                cv2.imwrite(f"{folder_path}/{SIGNS[i]}_{capture_count}.png", hand_roi)
 
-                print(f"Imagen {capture_count} capturada para el gesto {sign[i]}")
+                print(f"Imagen {capture_count} capturada para el gesto {SIGNS[i]}")
                 capture_count += 1
             else:
                 # Pide presionar una tecla para continuar con la siguiente letra
-                cv2.putText(frame, f'Presiona una tecla para continuar con el gesto {sign[i]}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
+                cv2.putText(frame, f'Presiona una tecla para continuar con el gesto {SIGNS[i]}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
                 cv2.imshow("Hand Tracking", frame)
                 cv2.waitKey(0)  # Espera hasta que se presione una tecla
                 # Reinicia el contador y pasa a la siguiente letra
-                capture_count = 0
+                capture_count = 5500
                 i += 1
 
     cv2.imshow("Hand Tracking", frame)

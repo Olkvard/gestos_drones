@@ -4,7 +4,7 @@ __pycache__/
 *.pyo
 
 # Virtual env
-venv/
+.venv/
 .env/
 
 # IDEs
@@ -22,3 +22,8 @@ pytest_cache/
 # Archivos
 *.png
 *.pkl
+*.yaml
+*.yml
+/model
+/mlartifacts
+/mlruns

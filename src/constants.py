@@ -13,5 +13,10 @@ CAMERA_INDEX = 0
 FRAME_WIDTH = 640
 FRAME_HEIGHT = 480
 
+# Configuración de la carpeta de datos y el modelo
 DATA_FOLDER = "data"
 MODEL_PATH = "./model/svm_model.pkl"
+
+# Número de clases para la clasificación
+N_CLASSES = 6
+SIGNS = ["Strike", "Recce1", "Recce2", "Recce3", "Aterrizar", "Desactivar"]
