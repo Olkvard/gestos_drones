@@ -1,10 +1,10 @@
 import cv2
 import os
 import numpy as np
-from src.constants import MP_HANDS, HANDS, MP_DRAWING, DATA_FOLDER, CAMERA_INDEX, FRAME_WIDTH, FRAME_HEIGHT, SIGNS
+from constants import MP_HANDS, HANDS, MP_DRAWING, DATA_FOLDER, CAMERA_INDEX, FRAME_WIDTH, FRAME_HEIGHT, SIGNS
 
 # Configuración de OpenCV
-capture_count = 5500
+capture_count = 0
 i = 0
 
 cap = cv2.VideoCapture(CAMERA_INDEX)
@@ -27,19 +27,13 @@ while cap.isOpened():
     if results.multi_hand_landmarks:
         for hand_landmarks in results.multi_hand_landmarks:
             # Dibuja los puntos de la mano en la imagen
-            MP_DRAWING.draw_landmarks(frame, hand_landmarks, MP_HANDS.HAND_CONNECTIONS)
 
             # Captura una imagen de la mano cada frame
             # (Elimina la condición de cada 30 frames para capturar más rápido)
             # Además, verifica si hemos capturado suficientes imágenes para la letra actual
-            if capture_count < 6000:
-                # Convierte los landmarks a un array NumPy
-                landmarks_array = np.array([[int(lm.x * frame.shape[1]), int(lm.y * frame.shape[0])] for lm in hand_landmarks.landmark[0:21]])
+            if capture_count < 500:
 
-                # Define la región de la mano (ajusta según sea necesario)
-                x, y, w, h = cv2.boundingRect(landmarks_array)
-                hand_roi = frame[y:y+h, x:x+w]
-
+                hand_roi = frame.copy()  # Copia la imagen original
                 # Guarda la imagen en la carpeta correspondiente a la letra del abecedario
                 folder_path = f"{DATA_FOLDER}/{SIGNS[i]}"
                 if not os.path.exists(folder_path):
@@ -55,7 +49,7 @@ while cap.isOpened():
                 cv2.imshow("Hand Tracking", frame)
                 cv2.waitKey(0)  # Espera hasta que se presione una tecla
                 # Reinicia el contador y pasa a la siguiente letra
-                capture_count = 5500
+                capture_count = 0
                 i += 1
 
     cv2.imshow("Hand Tracking", frame)

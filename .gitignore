@@ -21,9 +21,27 @@ pytest_cache/
 
 # Archivos
 *.png
+*.jpg
 *.pkl
 *.yaml
 *.yml
-/model
+*.zip
+
+# MlFlow runs
 /mlartifacts
 /mlruns
+
+# Datasets
+/data
+/images
+/src/train/yolo_dataset
+
+# Modelo
+/src/train/runs
+
+#GitHub
+.github/
+
+# Modelos
+*.pt
+*.pkl
