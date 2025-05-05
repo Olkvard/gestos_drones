@@ -6,7 +6,7 @@ import numpy as np
 
 import cv2
 import mediapipe as mp
-from constants import DATA_FOLDER, HANDS, SIGNS
+from api.constants import DATA_FOLDER, HANDS, SIGNS
 
 OUTPUT_FOLDER = "yolo_dataset"
 SPLITS = {"train": 0.7, "validation": 0.2, "test": 0.1}

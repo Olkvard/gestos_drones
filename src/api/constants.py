@@ -19,7 +19,7 @@ FRAME_HEIGHT = 480
 
 # Configuración de la carpeta de datos y el modelo
 DATA_FOLDER = "images"
-MODEL_PATH = "./runs/gesture_exp/weights/best.pt"
+MODEL_PATH = "best.pt"
 
 # Número de clases para la clasificación
 N_CLASSES = 6

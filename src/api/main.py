@@ -1,11 +1,6 @@
 import cv2
-import joblib
-import torch
-import numpy as np
-from torchvision import models
-from PIL import Image
 from ultralytics import YOLO
-from constants import MP_DRAWING, MP_HANDS, HANDS, CAMERA_INDEX, FRAME_HEIGHT, FRAME_WIDTH, MODEL_PATH, N_CLASSES, SIGNS
+from constants import HANDS, CAMERA_INDEX, FRAME_HEIGHT, FRAME_WIDTH, MODEL_PATH, SIGNS
 
 # Configuración de OpenCV
 cap = cv2.VideoCapture(CAMERA_INDEX)
