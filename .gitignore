@@ -37,9 +37,7 @@ pytest_cache/
 
 # Modelo
 /src/train/runs
-
-#GitHub
-.github/
+/wandb
 
 # Modelos
 *.pt

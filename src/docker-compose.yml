@@ -1,17 +1,22 @@
-version: "3.3"
 services:
   api:
     image: api:latest
     build:
       context: ./api
       dockerfile: Dockerfile
+    env_file:
+      - .env
   capture:
     image: capture:latest
     build:
       context: ./capture
       dockerfile: Dockerfile
+    env_file:
+      - .env
   train:
     image: train:latest
     build:
       context: ./train
       dockerfile: Dockerfile
+    env_file:
+      - .env

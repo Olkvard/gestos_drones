@@ -9,6 +9,8 @@ RUN apt-get update && apt-get install -y curl \
     libxrender-dev \
     && rm -rf /var/lib/apt/lists/*
 
+RUN mkdir 
+
 WORKDIR /app
 
 # Copy requirements and install them

@@ -6,7 +6,14 @@ import numpy as np
 
 import cv2
 import mediapipe as mp
-from api.constants import DATA_FOLDER, HANDS, SIGNS
+
+DATA_FOLDER =  os.getenv("DATA_PATH", "dataset")
+MP_HANDS = mp.solutions.hands
+HANDS = MP_HANDS.Hands(
+    static_image_mode=True,
+    max_num_hands=2,
+    min_detection_confidence=0.7,
+)
 
 OUTPUT_FOLDER = "yolo_dataset"
 SPLITS = {"train": 0.7, "validation": 0.2, "test": 0.1}
@@ -69,14 +76,6 @@ def get_hand_bbox_normalized(img_path, class_id):
         ww, hh = max(xs) - x, max(ys) - y
     else:
         x, y, ww, hh = max(all_boxes, key=lambda b: b[2] * b[3])
-    
-    #Reducir el tamaño un 10% para ajustar mejor al contorno
-    shrink_factor = 0.1
-    dw, dh, = ww * shrink_factor / 2, hh * shrink_factor / 2
-    x = int(x + dw)
-    y = int(y + dh)
-    ww = int(ww * (1 - shrink_factor))
-    hh = int(hh * (1 - shrink_factor))
     
     # Normaliza la bbox
     x_c = (x + ww / 2) / w

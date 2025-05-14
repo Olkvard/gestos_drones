@@ -1,6 +1,8 @@
 # Dockerfile
+# Imagen base
 FROM python:3.8-slim
 
+# Variables de entorno
 RUN apt-get update && apt-get install -y curl \
     libgl1-mesa-glx \
     libglib2.0-0 \
@@ -9,14 +11,15 @@ RUN apt-get update && apt-get install -y curl \
     libxrender-dev \
     && rm -rf /var/lib/apt/lists/*
 
+# Directorio de trabajo dentro del contenedor
 WORKDIR /app
 
-# Copy requirements and install them
+# Copiar las dependencias e instalarlas
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
-# Copy the entire api folder to the container
+# Copiar el resto del código fuente
 COPY . .
 
-# By default, let's run the main script
+# Por default, el contenedor ejecutará el script capture.py
 CMD ["python", "capture.py"]
