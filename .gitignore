@@ -23,7 +23,6 @@ pytest_cache/
 *.png
 *.jpg
 *.pkl
-*.yaml
 *.zip
 
 # MlFlow runs

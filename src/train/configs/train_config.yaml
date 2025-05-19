@@ -1,0 +1,8 @@
+# Parámetros de entrenamiento YOLOv8
+data: "yolo_dataset/data.yaml"
+model_arch: "yolov8s.pt"
+epochs: 100
+batch_size: 16
+img_size: 640
+project_dir: "runs"
+exp_name: "gesture_exp"

@@ -1,5 +1,6 @@
 import os
 import glob
+import wandb
 from ultralytics import YOLO
 
 def train_yolov8(data: str, model_arch: str, epochs: int,
@@ -11,6 +12,18 @@ def train_yolov8(data: str, model_arch: str, epochs: int,
     """
     # Asegúrate de que 'data' es absoluta
     data = os.path.abspath(data)
+    
+    wandb.init(
+        project="Deteccion_de_gestos",
+        name=exp_name,
+        config={
+            "data": data,
+            "model_arch": model_arch,
+            "epochs": epochs,
+            "batch_size": batch_size,
+            "img_size": img_size,
+        }
+    )
 
     # Carga YOLOv8-small
     model = YOLO(model_arch)
@@ -35,4 +48,12 @@ def train_yolov8(data: str, model_arch: str, epochs: int,
     weights_dir  = os.path.join(run_dir, "weights")
     # Obtener el fichero best.pt
     best_weights = glob.glob(os.path.join(weights_dir, "best*.pt"))[0]
+    
+    # Subir artefactos a wandb
+    wandb.log({"metrics_path": metrics_path, "best_weights": best_weights})
+    wandb.save(metrics_path)
+    wandb.save(best_weights)
+    
+    # Cerrar wandb
+    wandb.finish()
     return metrics_path, best_weights
