@@ -16,7 +16,7 @@ jobs:
         with:
           filters: |
             api:
-              - 'project/src/api/**'
+              - '/src/api/**'
 
 # ----------------- BUILD API ------------------
   build-api:
@@ -32,7 +32,7 @@ jobs:
         run: az acr login --name ${{ vars.AZURE_ACR_NAME }}
       - name: Build and push API image
         run: |
-          docker build -t ${{ vars.AZURE_ACR_NAME}}.azurecr.io/api:ci ./projects/src/api
+          docker build -t ${{ vars.AZURE_ACR_NAME}}.azurecr.io/api:ci ./src/api
           docker push ${{ vars.AZURE_ACR_NAME}}.azurecr.io/api:ci
 
 # ----------------- DEPLOY ------------------
@@ -47,11 +47,11 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
       - name: Prepare docker-compose.prod.yml
         run: |
-          cd project/src
+          cd /src
           cp docker-compose.prod.yml docker-compose.yml
           zip deploy.zip docker-compose.yml
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
         with: 
           app-name: ${{ vars.AZURE_WEBAPP_NAME }}
-          package: project/src/deploy.zip
+          package: /src/deploy.zip
