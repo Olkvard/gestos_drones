@@ -24,6 +24,14 @@ def train_yolov8(data: str, model_arch: str, epochs: int,
             "img_size": img_size,
         }
     )
+    
+    artifact_path = os.getenv("WANDB_DATASET", "a-fuentesr-universidad-politecnica-de-madrid/Deteccion_de_gestos/gestures_dataset:latest")
+    
+    # Descargar el artifact del dataset desde wandb
+    artifact = wandb.use_artifact(artifact_path, type='dataset')
+    artifact_dir = artifact.download()
+    # Asume que el archivo data.yaml está en la raíz del artifact
+    data = os.path.join(artifact_dir, "data.yaml")
 
     # Carga YOLOv8-small
     model = YOLO(model_arch)
@@ -49,10 +57,21 @@ def train_yolov8(data: str, model_arch: str, epochs: int,
     # Obtener el fichero best.pt
     best_weights = glob.glob(os.path.join(weights_dir, "best*.pt"))[0]
     
-    # Subir artefactos a wandb
-    wandb.log({"metrics_path": metrics_path, "best_weights": best_weights})
-    wandb.save(metrics_path)
-    wandb.save(best_weights)
+    # Guardar el artefacto del modelo en wandb
+    model_artifact = wandb.Artifact(
+        name="gestures_model",
+        type="model",
+        description="Modelo YOLOv8 entrenado para detección de gestos",
+        metadata={
+            "metrics_path": metrics_path,
+            "epochs": epochs,
+            "batch_size": batch_size,
+            "img_size": img_size,
+            "model_arch": model_arch,
+        }
+    )
+    model_artifact.add_file(best_weights)
+    wandb.log_artifact(model_artifact)
     
     # Cerrar wandb
     wandb.finish()

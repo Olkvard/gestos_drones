@@ -5,17 +5,9 @@ services:
       context: ./api
       dockerfile: Dockerfile
     ports:
-      -"8000:8000"
-    environment:
-      - API_PORT: 8000
-      - WANDB_API_KEY: ${WANDB_API_KEY}
-      - WANDB_ARTIFACT_PATH: ${WANDB_ARTIFACT_PATH}
-    healthcheck:
-      test: ["executable", "arg"]
-      interval: 1m30s
-      timeout: 30s
-      retries: 5
-      start_period: 30s
+      - "8000:8000"
+    env_file:
+      - .env
   capture:
     image: capture:latest
     build:
@@ -29,14 +21,6 @@ services:
       context: ./train
       dockerfile: Dockerfile
     ports:
-      -"8000:8000"
-    environment:
-      - API_PORT: 8000
-      - WANDB_API_KEY: ${WANDB_API_KEY}
-      - WANDB_ARTIFACT_PATH: ${WANDB_ARTIFACT_PATH}
-    healthcheck:
-      test: ["executable", "arg"]
-      interval: 1m30s
-      timeout: 30s
-      retries: 5
-      start_period: 30s
+      - "8000:8000"
+    env_file:
+      - .env
