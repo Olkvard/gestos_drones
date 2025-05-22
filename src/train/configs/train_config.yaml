@@ -5,4 +5,4 @@ epochs: 100
 batch_size: 16
 img_size: 640
 project_dir: "runs"
-exp_name: "gesture_exp"
+exp_name: "YOLO_Training"
