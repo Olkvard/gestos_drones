@@ -1,22 +1,43 @@
+version: "3.3"
+
 services:
   api:
-    image: api:latest
     build:
       context: ./api
       dockerfile: Dockerfile
+    image: api:latest
     env_file:
       - .env
+    devices:
+      - "/dev/video0:/dev/video0"
+    privileged: true
+    working_dir: /app
+    volumes:
+      - ./api:/app
+
   capture:
-    image: capture:latest
     build:
       context: ./capture
       dockerfile: Dockerfile
+    image: capture:latest
     env_file:
       - .env
+    working_dir: /app
+    volumes:
+      - ./capture:/app
+      - ./api:/app/api
+      - ./images:/app/images
+      - ./yolo_dataset:/app/yolo_dataset
+    devices:
+      - "/dev/video0:/dev/video0"
+    privileged: true
+
   train:
     image: train:latest
     build:
       context: ./train
       dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
     env_file:
       - .env

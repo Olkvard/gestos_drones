@@ -1,11 +1,16 @@
+from dotenv import load_dotenv
 import os
 import cv2
 from ultralytics import YOLO
 from constants import HANDS
+import json
+
+load_dotenv()
 
 CAMERA_INDEX = os.environ.get("CAMERA_INDEX", "0")
 FRAME_WIDTH = os.environ.get("FRAME_WIDTH", "640")
 FRAME_HEIGHT = os.environ.get("FRAME_HEIGHT", "480")
+SIGNS = json.loads(os.getenv("SIGNS", "[]"))
 # Configuración de OpenCV
 cap = cv2.VideoCapture(int(CAMERA_INDEX))
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, int(FRAME_WIDTH))
@@ -49,7 +54,7 @@ while cap.isOpened():
                             conf = float(box.conf[0])
                             last_boxes.append((x1, y1, x2, y2, cls_id, conf))
                 for (x1, y1, x2, y2, cls_id, conf) in last_boxes:
-                    label = f"{os.environ['SIGNS'][cls_id]} {conf*100:.2f}%"
+                    label = f"{SIGNS[cls_id]} {conf*100:.2f}%" if cls_id < len(SIGNS) else "Unknown"
                     cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
                     cv2.putText(frame, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)    
 

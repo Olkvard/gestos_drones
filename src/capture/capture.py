@@ -1,7 +1,7 @@
 import cv2
 import os
 import numpy as np
-from api.constants import MP_HANDS, HANDS, MP_DRAWING, DATA_FOLDER, CAMERA_INDEX, FRAME_WIDTH, FRAME_HEIGHT, SIGNS
+from api.constants import HANDS, DATA_FOLDER, CAMERA_INDEX, FRAME_WIDTH, FRAME_HEIGHT, SIGNS
 
 # Configuración de OpenCV
 capture_count = 0

@@ -22,4 +22,4 @@ RUN pip install -r requirements.txt
 COPY . .
 
 # Por default, el contenedor ejecutará el script capture.py
-CMD ["python", "capture.py"]
+CMD ["python", "YOLOdataset.py"]
