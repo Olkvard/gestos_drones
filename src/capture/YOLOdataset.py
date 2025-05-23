@@ -6,6 +6,10 @@ import numpy as np
 import wandb
 import logging
 import yaml
+import json
+from pathlib import Path
+from ultralytics.data.dataset import DATASET_CACHE_VERSION
+from ultralytics.data.utils import save_dataset_cache_file
 
 import cv2
 import mediapipe as mp
@@ -103,6 +107,17 @@ def get_hand_bbox_normalized(img_path, class_id):
     
 # Recorre cada split y genera las imágenes y etiquetas
 for split, items in splitted_images.items():
+    labels_cache = {
+        "images": 0,
+        "annotations": 0,
+        "classes": set(),
+    }
+
+    # Crea las carpetas de destino si no existen
+    imgs_dir = os.path.join(OUTPUT_FOLDER, split, "images")
+    lbls_dir = os.path.join(OUTPUT_FOLDER, split, "labels")
+    os.makedirs(imgs_dir, exist_ok=True)
+    os.makedirs(lbls_dir, exist_ok=True)
     for img_path, cls in items:
         fn = os.path.basename(img_path)
         name, ext = os.path.splitext(fn)
@@ -122,6 +137,20 @@ for split, items in splitted_images.items():
         label_path = os.path.join(OUTPUT_FOLDER, split, "labels", f"{name}.txt")
         with open(label_path, "w") as f:
             f.write(f"{cls} {x_min:.6f} {y_min:.6f} {x_max:.6f} {y_max:.6f}\n")
+        
+        labels_cache["images"] += 1
+        labels_cache["annotations"] += 1
+        labels_cache["classes"].add(cls)
+        
+    labels_cache["classes"] = list(labels_cache["classes"])
+    labels_cache["version"] = DATASET_CACHE_VERSION
+    cache_path = Path(OUTPUT_FOLDER) / split / "labels.cache"
+    save_dataset_cache_file(
+        prefix="",
+        path=cache_path,
+        x=labels_cache,
+        version=DATASET_CACHE_VERSION
+    )
             
 def create_data_yaml(output_folder, class_index):
     """
