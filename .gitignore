@@ -32,7 +32,7 @@ pytest_cache/
 # Datasets
 /data
 /images
-/src/train/yolo_dataset
+
 
 # Modelo
 /src/train/runs
