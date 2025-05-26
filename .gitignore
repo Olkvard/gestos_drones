@@ -20,7 +20,6 @@ pytest_cache/
 *.pickle
 
 # Archivos
-*.png
 *.jpg
 *.pkl
 *.zip
