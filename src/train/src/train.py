@@ -25,13 +25,9 @@ def train_yolov8(data: str, model_arch: str, epochs: int,
         }
     )
     
-    artifact_path = os.getenv("WANDB_DATASET", "a-fuentesr-universidad-politecnica-de-madrid/Deteccion_de_gestos/gestures_dataset:latest")
-    
-    # Descargar el artifact del dataset desde wandb
-    artifact = wandb.use_artifact(artifact_path, type='dataset')
-    artifact_dir = artifact.download()
-    # Asume que el archivo data.yaml está en la raíz del artifact
-    data = os.path.join(artifact_dir, "data.yaml")
+    data = os.getenv("YOLO_DATASET", "/app/yolo_dataset/data.yaml")
+    if not os.path.isfile(data):
+        raise FileNotFoundError(f"El archivo de datos '{data}' no existe. Asegúrate de que la ruta es correcta.")
 
     # Carga YOLOv8-small
     model = YOLO(model_arch)

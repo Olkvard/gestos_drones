@@ -1,7 +1,7 @@
 # yolo_dataset/data.yaml
-train: app/yolo_dataset/train/images
-val:   app/yolo_dataset/validation/images
-test:  app/yolo_dataset/test/images
+train: train/images
+val:   validation/images
+test:  test/images
 
 nc: 6
 names: ["1Dedo", "2Dedos", "3Dedos", "Mano Abierta", "Manos Arriba", "Puño"]

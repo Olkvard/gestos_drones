@@ -1,5 +1,5 @@
 # Parámetros de entrenamiento YOLOv8
-data: "gestures_dataset/data.yaml"
+data: "/app/yolo_dataset/data.yaml"
 model_arch: "yolov8s.pt"
 epochs: 100
 batch_size: 16

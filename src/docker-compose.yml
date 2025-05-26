@@ -32,3 +32,11 @@ services:
               count: 1
               capabilities:
                 - gpu
+    volumes:
+      - ./train/yolo_dataset:/app/yolo_dataset
+      - ./train/configs:/app/configs
+      - ./train/runs:/app/runs
+    working_dir: /app
+    command: ["python", "run_train.py"]
+    environment:
+      - YOLO_DATASET=/app/yolo_dataset/data.yaml

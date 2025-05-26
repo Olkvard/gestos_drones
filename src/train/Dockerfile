@@ -1,22 +1,17 @@
-# Dockerfile
 FROM python:3.8-slim
 
-RUN apt-get update && apt-get install -y curl \
-    libgl1-mesa-glx \
-    libglib2.0-0 \
-    libsm6 \
-    libxext6 \
-    libxrender-dev \
-    && rm -rf /var/lib/apt/lists/*
+# Instalar dependencias del sistema (y v4l2 si quieres hacer capture)
+RUN apt-get update && apt-get install -y \
+    libgl1-mesa-glx libglib2.0-0 libsm6 libxext6 libxrender-dev \
+ && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Copy requirements and install them
+# Copia e instala pip deps
 COPY requirements.txt .
-RUN pip install -r requirements.txt
+RUN pip install --default-timeout=100 -r requirements.txt
 
-# Copy the entire api folder to the container
+# Copia el código fuente
 COPY . .
 
-# By default, let's run the main script
 CMD ["python", "run_train.py"]
