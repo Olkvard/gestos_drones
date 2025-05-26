@@ -1,25 +1,29 @@
-# Dockerfile
-# Imagen base
+# Dockerfile modificado
 FROM python:3.8-slim
 
-# Variables de entorno
-RUN apt-get update && apt-get install -y curl \
+# Dependencias de sistema (incluyendo V4L2)
+RUN apt-get update && apt-get install -y \
     libgl1-mesa-glx \
     libglib2.0-0 \
     libsm6 \
     libxext6 \
     libxrender-dev \
-    && rm -rf /var/lib/apt/lists/*
+    libv4l-0 \
+    libv4l-dev \
+    v4l-utils \
+  && rm -rf /var/lib/apt/lists/*
 
-# Directorio de trabajo dentro del contenedor
 WORKDIR /app
 
-# Copiar las dependencias e instalarlas
+# Copiar requirements e instalar con timeout ampliado
 COPY requirements.txt .
-RUN pip install -r requirements.txt
+# Opción 1: usar --default-timeout
+RUN pip install --default-timeout=100 -r requirements.txt
 
-# Copiar el resto del código fuente
+# Copiar el código fuente
 COPY . .
 
-# Por default, el contenedor ejecutará el script capture.py
-CMD ["python", "YOLOdataset.py"]
+# Forzar preload de V4L2
+ENV LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libv4l/v4l2convert.so
+
+CMD ["python", "capture.py"]

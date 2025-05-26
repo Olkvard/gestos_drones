@@ -25,7 +25,6 @@ services:
     working_dir: /app
     volumes:
       - ./capture:/app
-      - ./api:/app/api
       - ./images:/app/images
       - ./yolo_dataset:/app/yolo_dataset
     devices:
