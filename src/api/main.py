@@ -4,6 +4,7 @@ import cv2
 from ultralytics import YOLO
 from constants import HANDS
 import json
+import wandb
 
 load_dotenv()
 
@@ -21,8 +22,24 @@ SKIP = 3
 frame_count = 0
 last_boxes = []
 
+wandb.init(
+    project="Deteccion_de_gestos",
+    name="HandTracking",
+    config={
+        "camera_index": CAMERA_INDEX,
+        "frame_width": FRAME_WIDTH,
+        "frame_height": FRAME_HEIGHT,
+        "skip_frames": SKIP,
+        "signs": SIGNS
+    }
+)
+
+# Cargar el modelo de detección de manos
+artifact_path = os.environ.get("WANDB_MODEL", "a-fuentesr-universidad-politecnica-de-madrid/Deteccion_de_gestos/svm_model:latest")
+artifact = wandb.use_artifact(artifact_path, type="model")
+
 # Cargar el modelo 
-model = YOLO(os.environ.get("MODEL_PATH", "src/api/best.pt"))
+model = YOLO(artifact)
 print("Modelo cargado")
 
 while cap.isOpened():

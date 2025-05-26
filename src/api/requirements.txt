@@ -1,5 +1,4 @@
 mediapipe==0.10.11
-opencv_contrib_python==4.11.0.86
-opencv_python==4.11.0.86
 python-dotenv==1.0.1
-ultralytics==8.3.116
+ultralytics==8.3.145
+wandb==0.19.11
