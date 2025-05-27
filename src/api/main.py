@@ -1,87 +1,61 @@
-from dotenv import load_dotenv
-import os
-import cv2
-from ultralytics import YOLO
+from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi.responses import JSONResponse
 from constants import HANDS
+import cv2
+import os
 import json
 import wandb
+import joblib
+import uvicorn
 
-load_dotenv()
+API_PORT = int(os.environ.get("API_PORT", 8000))
 
-CAMERA_INDEX = os.environ.get("CAMERA_INDEX", "0")
-FRAME_WIDTH = os.environ.get("FRAME_WIDTH", "640")
-FRAME_HEIGHT = os.environ.get("FRAME_HEIGHT", "480")
-SIGNS = json.loads(os.getenv("SIGNS", "[]"))
-# Configuración de OpenCV
-cap = cv2.VideoCapture(int(CAMERA_INDEX))
-cap.set(cv2.CAP_PROP_FRAME_WIDTH, int(FRAME_WIDTH))
-cap.set(cv2.CAP_PROP_FRAME_HEIGHT, int(FRAME_HEIGHT))
-print("Cámara abierta")
+SIGNS = json.loads(os.getenv("SIGNS", '["1Dedo", "2Dedos", "3Dedos", "Mano Abierta", "Manos Arriba", "Puño"]'))
 
-SKIP = 3
-frame_count = 0
-last_boxes = []
+api = wandb.Api()
 
-wandb.init(
-    project="Deteccion_de_gestos",
-    name="HandTracking",
-    config={
-        "camera_index": CAMERA_INDEX,
-        "frame_width": FRAME_WIDTH,
-        "frame_height": FRAME_HEIGHT,
-        "skip_frames": SKIP,
-        "signs": SIGNS
-    }
-)
+app = FastAPI()
 
-# Cargar el modelo de detección de manos
-artifact_path = os.environ.get("WANDB_MODEL", "a-fuentesr-universidad-politecnica-de-madrid/Deteccion_de_gestos/svm_model:latest")
-artifact = wandb.use_artifact(artifact_path, type="model")
+# Cargar el modelo al iniciar la aplicación
+artifact_path = os.environ.get("WANDB_MODEL", "a-fuentesr-universidad-politecnica-de-madrid/Deteccion_de_gestos/svm_model:v0")
+print(f"Artifact path: {artifact_path}")
+artifact = api.artifact(artifact_path, type="model")
+artifact_dir = artifact.download()
 
-# Cargar el modelo 
-model = YOLO(artifact)
-print("Modelo cargado")
+# Cargar el modelo SVM desde el archivo descargado
+model_path = os.path.join(artifact_dir, "svm_model.pkl")  # Asegúrate de que el archivo tenga este nombre
+if not os.path.exists(model_path):
+    raise FileNotFoundError(f"No se encontró el archivo del modelo SVM en {model_path}")
+model = joblib.load(model_path)
+print("Modelo SVM cargado correctamente.")
 
-while cap.isOpened():
-    ret, frame = cap.read()
-    if not ret:
-        print("No se puede abrir la cámara.")
-        break
-    frame_count += 1
+@app.post("/analyze")
+async def analyze_image(file: UploadFile = File(...)):
+    try:
+        # Guardar la imagen temporalmente
+        image_path = f"/tmp/{file.filename}"
+        with open(image_path, "wb") as buffer:
+            buffer.write(await file.read())
 
-    # Convertir la imagen a RGB para mediapipe
-    rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        # Leer la imagen
+        frame = cv2.imread(image_path)
+        if frame is None:
+            raise HTTPException(status_code=400, detail="No se pudo cargar la imagen")
 
-    # Detectar manos
-    results = HANDS.process(rgb_frame)
+        # Preprocesar la imagen (por ejemplo, convertirla a escala de grises y redimensionarla)
+        gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        resized_frame = cv2.resize(gray_frame, (64, 64))  # Ajusta el tamaño según lo que espera tu modelo
+        features = resized_frame.flatten().reshape(1, -1)  # Convertir la imagen en un vector de características
 
-    # Comprobar si se detecta la mano
-    if results.multi_hand_landmarks:
-        for hand_landmarks in results.multi_hand_landmarks:
-            try:
-                if frame_count % SKIP == 0:    
-                    last_boxes = []
-                    results = model(frame, stream=True, conf=0.25, iou=0.45)
-                    for r in results:
-                        boxes = r.boxes
-                        for box in boxes:
-                            # coordenadas absolutas
-                            x1, y1, x2, y2 = map(int, box.xyxy[0])
-                            cls_id = int(box.cls[0])
-                            conf = float(box.conf[0])
-                            last_boxes.append((x1, y1, x2, y2, cls_id, conf))
-                for (x1, y1, x2, y2, cls_id, conf) in last_boxes:
-                    label = f"{SIGNS[cls_id]} {conf*100:.2f}%" if cls_id < len(SIGNS) else "Unknown"
-                    cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-                    cv2.putText(frame, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)    
+        # Realizar la predicción con el modelo SVM
+        prediction = model.predict(features)[0]
 
-            except Exception as e:
-                print(f"Error al procesar la mano: {e}")
+        # Devolver el resultado como JSON
+        gesture = SIGNS[prediction] if prediction < len(SIGNS) else "Unknown"
+        
+        return JSONResponse(content={"predictions": gesture})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
     
-    cv2.imshow("Hand Tracking", frame)
-
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
-
-cap.release()
-cv2.destroyAllWindows()  
+if __name__ == '__main__':
+    uvicorn.run(app, host='0.0.0.0', port=API_PORT)

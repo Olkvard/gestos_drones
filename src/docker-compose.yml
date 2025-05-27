@@ -2,18 +2,26 @@ version: "3.3"
 
 services:
   api:
+    image: api:latest
     build:
       context: ./api
       dockerfile: Dockerfile
-    image: api:latest
+    ports:
+      - "8001:8000"
     env_file:
       - .env
-    devices:
-      - "/dev/video0:/dev/video0"
-    privileged: true
-    working_dir: /app
-    volumes:
-      - ./api:/app
+
+  web:
+    image: web:latest
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - api
+    env_file:
+      - .env
 
   capture:
     build:
