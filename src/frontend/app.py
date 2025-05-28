@@ -30,7 +30,7 @@ def predict():
 
     try:
         with open(image_path, 'rb') as img_file:
-            response = requests.post(API_URL, files={'image': img_file})
+            response = requests.post(API_URL, files={'file': img_file})
             return jsonify(response.json())
     except Exception as e:
         return jsonify({'error': str(e)}), 500

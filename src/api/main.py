@@ -31,29 +31,37 @@ print("Modelo SVM cargado correctamente.")
 
 @app.post("/analyze")
 async def analyze_image(file: UploadFile = File(...)):
+    print("Solicitud de análisis de imagen recibida.")
     try:
+        print("Recibiendo archivo:", file.filename)
         # Guardar la imagen temporalmente
         image_path = f"/tmp/{file.filename}"
         with open(image_path, "wb") as buffer:
             buffer.write(await file.read())
+        print(f"Imagen guardada temporalmente en {image_path}")
 
         # Leer la imagen
         frame = cv2.imread(image_path)
         if frame is None:
             raise HTTPException(status_code=400, detail="No se pudo cargar la imagen")
+        print(f"Imagen cargada desde {image_path}")
 
         # Preprocesar la imagen (por ejemplo, convertirla a escala de grises y redimensionarla)
         gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        resized_frame = cv2.resize(gray_frame, (64, 64))  # Ajusta el tamaño según lo que espera tu modelo
+        print("Imagen convertida a escala de grises.")
+        resized_frame = cv2.resize(gray_frame, (128, 128))  # Ajusta el tamaño según lo que espera tu modelo
+        print("Imagen redimensionada a 128x128 píxeles.")
         features = resized_frame.flatten().reshape(1, -1)  # Convertir la imagen en un vector de características
+        print("Características extraídas de la imagen.")
 
         # Realizar la predicción con el modelo SVM
-        prediction = model.predict(features)[0]
-
-        # Devolver el resultado como JSON
-        gesture = SIGNS[prediction] if prediction < len(SIGNS) else "Unknown"
+        try:
+            prediction = model.predict(features)[0]
+            print(f"Predicción realizada: {prediction}")
+        except Exception as e:
+            print(f"Error al realizar la predicción: {e}")
         
-        return JSONResponse(content={"predictions": gesture})
+        return JSONResponse(content={"prediction": prediction})
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
