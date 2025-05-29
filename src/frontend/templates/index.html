@@ -16,9 +16,32 @@
             padding: 20px;
             width: 300px;
             margin: 0 auto;
+            transition: border-color 0.3s;
         }
         #drop-area.hover {
             border-color: #333;
+        }
+        #preview {
+            margin-top: 20px;
+            max-width: 300px;
+            max-height: 300px;
+            display: none; /* Oculto inicialmente */
+            border: 1px solid #ccc;
+            border-radius: 10px;
+        }
+        #predictBtn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #predictBtn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
         }
         #result {
             margin-top: 20px;
@@ -33,6 +56,7 @@
         <input type="file" id="fileElem" accept="image/*" style="display:none">
         <button id="fileSelect">Select Image</button>
     </div>
+    <img id="preview" alt="Image preview">
     <button id="predictBtn" disabled>Predict Gesture</button>
     <div id="result"></div>
 
@@ -42,6 +66,7 @@
         const fileSelect = document.getElementById('fileSelect');
         const predictBtn = document.getElementById('predictBtn');
         const resultDiv = document.getElementById('result');
+        const preview = document.getElementById('preview');
         let selectedFile = null;
 
         fileSelect.addEventListener('click', () => fileElem.click());
@@ -49,6 +74,16 @@
         fileElem.addEventListener('change', (e) => {
             selectedFile = e.target.files[0];
             predictBtn.disabled = !selectedFile;
+
+            // Mostrar vista previa de la imagen
+            if (selectedFile) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    preview.src = event.target.result; // Establecer la imagen en el src del <img>
+                    preview.style.display = 'block';  // Hacer visible el <img>
+                };
+                reader.readAsDataURL(selectedFile); // Leer la imagen como DataURL
+            }
         });
 
         predictBtn.addEventListener('click', async () => {
