@@ -43,7 +43,7 @@ Además incluye un segundo modelo SVM como baseline y compara resultados en W&B.
 - Python 3.8+
 - Docker & Docker Compose
 - Azure CLI
-- (Opcional) W&B CLI si quieres reproducir los experiments
+- W&B CLI si quieres reproducir los experiments
 
 ---
 
@@ -55,32 +55,21 @@ Además incluye un segundo modelo SVM como baseline y compara resultados en W&B.
    git clone https://github.com/tu-usuario/detector-gestos.git
    cd detector-gestos
    ```
-2. **Crear entorno virtual & dependencias**
+2. **Creación del .env**
+    
+    Será necesaria la creación de un archivo .env con las variables de entorno para el proyecto, este archivo deberá incluir la clave de wandb, el resto de de variables ya cuentan con un valor por defecto, en caso de querer cambiarlas deberán incluirse en el archivo.
 
-    ```bash
-    python -m venv .venv
-    source .venv/bin/activate    # Linux/Mac
-    .venv\Scripts\activate       # Windows
-    pip install -r requirements.txt
-    ```
-3. **Capturar imágenes de entrenamiento**
+3. **Ejecutar las imágenes de Docker**
 
-    ```bash
-    python capture.py --gesture A --count 100
-    ```
-4. **Entrenar modelo en Notebook**
+    Ejecutar la imágen de captura de imágenes de Docker, esto abrirá una ventana con OpenCV y permitirá realizar la captura de las imágenes para el entrenamiento. La captura realiza 500 fotografías para cada gesto.
 
-    ```bash
-    jupyter lab train.ipynb
-    ```
-    Ajusta hiperparámetros y guarda el modelo en ./model/best_model.pth.
+4. **Entrenar modelo en la imágen train**
 
-5. **Ejecutar inferencia en tiempo real**
+    Ejecutar la imágen train, la cuál realizará el entrenamiento del modelo y lo subirá a wandb donde se podrán ver los resultados del entrenamiento.
 
-    ```bash
-    python main.py
-    ```
-    Se abrirá una ventana con la cámara y la predicción de gestos.
+5. **Ejecutar imágenes api y web**
+
+    Esto abrirá una página web hosteada en un puerto de la máquina donde se podrá subir una imágen y el modelo la analizará para comprobar el gesto que se encuentra en dicha imágen.
 
 ## Despliegue en producción (Azure App Service)
 1. **Pre-requisitos**
