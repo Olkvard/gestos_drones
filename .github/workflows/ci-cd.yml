@@ -17,9 +17,9 @@ jobs:
         with:
           filters: |
             api:
-              - 'project/src/api/**'
+              - '/src/api/**'
             web:
-              - 'project/src/frontend/**'
+              - '/src/frontend/**'
   # ‑‑‑‑‑‑‑‑‑‑‑‑‑‑‑‑‑‑ BUILD API ‑‑‑‑‑‑‑‑‑‑‑‑‑‑‑‑‑‑
   build-api:
     runs-on: ubuntu-latest
@@ -34,7 +34,7 @@ jobs:
         run: az acr login --name ${{ vars.AZURE_ACR_NAME }}
       - name: Build & push API image
         run: |
-          docker build -t ${{ vars.AZURE_ACR_NAME }}.azurecr.io/api:ci ./project/src/api
+          docker build -t ${{ vars.AZURE_ACR_NAME }}.azurecr.io/api:ci ./src/api
           docker push ${{ vars.AZURE_ACR_NAME }}.azurecr.io/api:ci
 
   # ‑‑‑‑‑‑‑‑‑‑‑‑‑‑‑‑‑‑ BUILD WEB ‑‑‑‑‑‑‑‑‑‑‑‑‑‑‑‑‑‑
@@ -51,7 +51,7 @@ jobs:
         run: az acr login --name ${{ vars.AZURE_ACR_NAME }}
       - name: Build & push Web image
         run: |
-          docker build -t ${{ vars.AZURE_ACR_NAME }}.azurecr.io/web:ci ./project/src/frontend
+          docker build -t ${{ vars.AZURE_ACR_NAME }}.azurecr.io/web:ci ./src/frontend
           docker push ${{ vars.AZURE_ACR_NAME }}.azurecr.io/web:ci
 
   # ‑‑‑‑‑‑‑‑‑‑‑‑‑‑‑‑‑‑ DEPLOY ‑‑‑‑‑‑‑‑‑‑‑‑‑‑‑‑‑‑
@@ -66,11 +66,11 @@ jobs:
             creds: ${{ secrets.AZURE_CREDENTIALS }}
       - name: Prepare docker‑compose.prod.yml
         run: |
-          cd project/src
+          cd src
           cp docker-compose.prod.yml docker-compose.yml
           zip deploy.zip docker-compose.yml
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ vars.AZURE_WEBAPP_NAME }}
-          package: ./project/src/deploy.zip
+          package: .src/deploy.zip
