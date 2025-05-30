@@ -73,4 +73,4 @@ jobs:
         uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ vars.AZURE_WEBAPP_NAME }}
-          package: .src/deploy.zip
+          package: ./src/deploy.zip
