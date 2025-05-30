@@ -44,15 +44,11 @@ async def analyze_image(file: UploadFile = File(...)):
         frame = cv2.imread(image_path)
         if frame is None:
             raise HTTPException(status_code=400, detail="No se pudo cargar la imagen")
-        print(f"Imagen cargada desde {image_path}")
 
         # Preprocesar la imagen (por ejemplo, convertirla a escala de grises y redimensionarla)
         gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        print("Imagen convertida a escala de grises.")
         resized_frame = cv2.resize(gray_frame, (128, 128))  # Ajusta el tamaño según lo que espera tu modelo
-        print("Imagen redimensionada a 128x128 píxeles.")
         features = resized_frame.flatten().reshape(1, -1)  # Convertir la imagen en un vector de características
-        print("Características extraídas de la imagen.")
 
         # Realizar la predicción con el modelo SVM
         try:

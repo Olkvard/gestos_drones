@@ -27,7 +27,8 @@ def predict():
     image = request.files['image']
     image_path = os.path.join(app.config['UPLOAD_FOLDER'], image.filename)
     image.save(image_path)
-
+    
+    # Enviar la imagen al API para análisis
     try:
         with open(image_path, 'rb') as img_file:
             response = requests.post(API_URL, files={'file': img_file})
