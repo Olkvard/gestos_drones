@@ -16,6 +16,11 @@ jobs:
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      - name: Debug RG & App
+        run: |
+          echo "Resource Group: ${{ secrets.AZURE_RESOURCE_GROUP }}"
+          echo "App Service  : ${{ secrets.AZURE_WEBAPP_NAME }}"
 
       - name: Deploy Docker Compose to Azure WebApp
         run: |
