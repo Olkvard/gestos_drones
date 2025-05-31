@@ -23,17 +23,37 @@ Además incluye un segundo modelo SVM como baseline y compara resultados en W&B.
 ```markdown
 .
 /
-├── src   # Workflows de GitHub Actions
+├── .github/workflows
 │ └── ci-cd.yml
-├── constants.py        # Configuración global (MediaPipe, cámara, rutas)
-├── train.ipynb         # Notebook para entrenamiento y validación de modelo
-├── main.py             # Inferencia en tiempo real sobre cámara
-├── docker-compose.yml  # Definición de servicios (frontend, API, capture, train)
-├── Dockerfile.api      # API REST (FastAPI + modelo)
-├── Dockerfile.frontend # Frontend web
-├── .github/workflows   # Workflows de GitHub Actions
-│ └── ci-cd.yml
-└── README.md           # Este archivo
+├── src
+│ └── api 
+│   └── Dockerfile
+│   └── constants.py
+│   └── main.py
+│   └── requirements.txt
+│ └── capture
+│   └── Dockerfile
+│   └── YOLOdataset.py
+│   └── capture.py
+│   └── requirements.txt
+│ └── frontend
+│   └── templates
+│       └── index.html
+│   └── Dockerfile
+│   └── app.py
+│   └── requirements.txt
+│ └── train
+│   └── configs
+│       └── train_config.yaml
+│   └── src
+│       └── train.py
+│   └── Dockerfile
+│   └── run_train.py
+│   └── train_svm.py
+│   └── requirements.txt
+│ └── docker-compose.prod.yml
+│ └── docker-compose.yml
+└── README.md
 ```
 
 ---
