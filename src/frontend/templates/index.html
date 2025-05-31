@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gesture Detection</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        #drop-area {
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            width: 300px;
+            margin: 0 auto;
+            transition: border-color 0.3s;
+        }
+        #drop-area.hover {
+            border-color: #333;
+        }
+        #preview {
+            margin-top: 20px;
+            max-width: 300px;
+            max-height: 300px;
+            display: none; /* Oculto inicialmente */
+            border: 1px solid #ccc;
+            border-radius: 10px;
+        }
+        #predictBtn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #predictBtn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        #result {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Gesture Detection</h1>
+    <div id="drop-area">
+        <p>Drag & Drop an image here or click to upload</p>
+        <input type="file" id="fileElem" accept="image/*" style="display:none">
+        <button id="fileSelect">Select Image</button>
+    </div>
+    <img id="preview" alt="Image preview">
+    <button id="predictBtn" disabled>Predict Gesture</button>
+    <div id="result"></div>
+
+    <script>
+        const dropArea = document.getElementById('drop-area');
+        const fileElem = document.getElementById('fileElem');
+        const fileSelect = document.getElementById('fileSelect');
+        const predictBtn = document.getElementById('predictBtn');
+        const resultDiv = document.getElementById('result');
+        const preview = document.getElementById('preview');
+        let selectedFile = null;
+
+        fileSelect.addEventListener('click', () => fileElem.click());
+
+        fileElem.addEventListener('change', (e) => {
+            selectedFile = e.target.files[0];
+            predictBtn.disabled = !selectedFile;
+
+            // Mostrar vista previa de la imagen
+            if (selectedFile) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    preview.src = event.target.result; // Establecer la imagen en el src del <img>
+                    preview.style.display = 'block';  // Hacer visible el <img>
+                };
+                reader.readAsDataURL(selectedFile); // Leer la imagen como DataURL
+            }
+        });
+
+        predictBtn.addEventListener('click', async () => {
+            if (!selectedFile) return;
+
+            const formData = new FormData();
+            formData.append('image', selectedFile);
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                if (data.error) {
+                    resultDiv.textContent = `Error: ${data.error}`;
+                } else {
+                    resultDiv.textContent = `Prediction: ${data.prediction}`;
+                }
+            } catch (error) {
+                resultDiv.textContent = `Error: ${error.message}`;
+            }
+        });
+    </script>
+</body>
+</html>

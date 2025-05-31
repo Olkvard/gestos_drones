@@ -1,15 +1,30 @@
 import cv2
 import os
 import numpy as np
-from api.constants import MP_HANDS, HANDS, MP_DRAWING, DATA_FOLDER, CAMERA_INDEX, FRAME_WIDTH, FRAME_HEIGHT, SIGNS
+import json
+import mediapipe as mp
 
 # Configuración de OpenCV
 capture_count = 0
 i = 0
 
-cap = cv2.VideoCapture(CAMERA_INDEX)
-cap.set(cv2.CAP_PROP_FRAME_WIDTH, FRAME_WIDTH)
-cap.set(cv2.CAP_PROP_FRAME_HEIGHT, FRAME_HEIGHT)
+MP_HANDS = mp.solutions.hands
+HANDS = MP_HANDS.Hands(
+    static_image_mode=True,
+    max_num_hands=2,
+    min_detection_confidence=0.7,
+)
+
+DATA_FOLDER = os.environ.get("DATA_PATH", "/app/images")
+
+CAMERA_INDEX = os.environ.get("CAMERA_INDEX", 0)
+FRAME_WIDTH = os.environ.get("FRAME_WIDTH", 640)
+FRAME_HEIGHT = os.environ.get("FRAME_HEIGHT", 480)
+SIGNS = json.loads(os.getenv("SIGNS", "[]"))
+
+cap = cv2.VideoCapture(int(CAMERA_INDEX))
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, float(FRAME_WIDTH))
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, float(FRAME_HEIGHT))
 
 while cap.isOpened():
     ret, frame = cap.read()

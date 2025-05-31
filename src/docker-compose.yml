@@ -1,3 +1,5 @@
+version: "3.3"
+
 services:
   api:
     image: api:latest
@@ -5,38 +7,43 @@ services:
       context: ./api
       dockerfile: Dockerfile
     ports:
-      -"8000:8000"
-    environment:
-      - API_PORT: 8000
-      - WANDB_API_KEY: ${WANDB_API_KEY}
-      - WANDB_ARTIFACT_PATH: ${WANDB_ARTIFACT_PATH}
-    healthcheck:
-      test: ["executable", "arg"]
-      interval: 1m30s
-      timeout: 30s
-      retries: 5
-      start_period: 30s
+      - "8001:8000"
+    env_file:
+      - .env
+
+  web:
+    image: web:latest
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - api
+    env_file:
+      - .env
   capture:
-    image: capture:latest
     build:
       context: ./capture
       dockerfile: Dockerfile
+    image: capture:latest
     env_file:
       - .env
+    working_dir: /app
+    volumes:
+      - ./capture:/app
+      - ./images:/app/images
+      - ./yolo_dataset:/app/yolo_dataset
+    devices:
+      - "/dev/video0:/dev/video0"
+    privileged: true
+
   train:
     image: train:latest
     build:
       context: ./train
       dockerfile: Dockerfile
     ports:
-      -"8000:8000"
-    environment:
-      - API_PORT: 8000
-      - WANDB_API_KEY: ${WANDB_API_KEY}
-      - WANDB_ARTIFACT_PATH: ${WANDB_ARTIFACT_PATH}
-    healthcheck:
-      test: ["executable", "arg"]
-      interval: 1m30s
-      timeout: 30s
-      retries: 5
-      start_period: 30s
+      - "8000:8000"
+    env_file:
+      - .env

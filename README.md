@@ -1,51 +1,141 @@
-# Detección de gestos con OpenCV y Mediapipe
+# Detector de Gestos para Control de Drones
 
-## Introducción
+**Autores:** Alfonso Fuentes, Angel Gutierrez  
+**Fecha:** Mayo 2025  
 
-Este proyecto tiene como objetivo el pilotaje de un dron mediante gestos con las manos, para ello se recogen capturas de los gestos que se utilizarán, se entrena un modelo capaz de reconocer dichos gestos y estos se implementan en el código del dron para su control.
+---
 
-## Tecnologías Utilizadas
+## Descripción
 
-- Python
-- OpenCV
-- MediaPipe
-- Scikit-learn (para SVM)
-- Numpy
+Este proyecto implementa un sistema de reconocimiento de gestos manuales para controlar un dron en tiempo real. Usa MediaPipe para detectar y recortar la mano, y luego un modelo de Deep Learning (EfficientNet-B0 finetune) para clasificar 6 gestos básicos:  
+- Aterrizar  
+- Desactivar  
+- Recce1  
+- Recce2  
+- Recce3  
+- Strike  
 
-## Requisitos Previos
+Además incluye un segundo modelo SVM como baseline y compara resultados en W&B.
 
-Antes de comenzar asegurate de instalar las dependencias de `requirements.txt` con:
+---
 
-```bash
-pip install requirements.txt
-```
-
-## Estructura del Proyecto
+## Estructura del repositorio
 ```markdown
 .
-├── data                # Almacena las fotografías tomadas en capture.py
-├── capture.py          # Realiza las fotografías para el entrenamiento
-├── constants.py        # Contiene las constantes usadas en los archivos
-├── train.py            # Entrena el modelo de predicción
-├── main.py             # Utiliza el modelo de predicción en tiempo real
-├── requirements.txt    # Contiene las dependencias del proyecto
-├── .gitignore
+/
+├── .github/workflows
+│ └── ci-cd.yml
+├── src
+│ └── api 
+│   └── Dockerfile
+│   └── constants.py
+│   └── main.py
+│   └── requirements.txt
+│ └── capture
+│   └── Dockerfile
+│   └── YOLOdataset.py
+│   └── capture.py
+│   └── requirements.txt
+│ └── frontend
+│   └── templates
+│       └── index.html
+│   └── Dockerfile
+│   └── app.py
+│   └── requirements.txt
+│ └── train
+│   └── configs
+│       └── train_config.yaml
+│   └── src
+│       └── train.py
+│   └── Dockerfile
+│   └── run_train.py
+│   └── train_svm.py
+│   └── requirements.txt
+│ └── docker-compose.prod.yml
+│ └── docker-compose.yml
 └── README.md
 ```
 
-## Modo de Uso
+---
 
-El primer paso una vez instaladas las dependencias será ajustar los parámetros a los deseados dentro del archivo constants.py. Aquí podremos establecer el número de clases del modelo y los nombres de los gestos, así como los ajustes de la cámara y la configuración de la carpeta de amacenamiento de las imágenes y el modelo.
+## Requisitos
 
-### Captura de imágenes
+- Python 3.8+
+- Docker & Docker Compose
+- Azure CLI
+- W&B CLI si quieres reproducir los experiments
 
-Para la captura de las imágenes se debe ejecutar el archivo capture.py. Antes de la ejecución debemos establecer el número de imágenes que se tomarán de cada gesto en la variable capture_count. Este archivo activará la cámara de la propia máquina por defecto y en el momento que detecte una mano comenzará a realizar las capturas y almacenarlas en la carpeta correspondiente, una vez alcanzado el capture_count, se detendrá la captura y tras pulsar una tecla pasará automáticamente a recoger las imágenes para el siguiente gesto.
+---
 
-### Entrenamiento del modelo
+## Instalación y uso local
 
-Tras la captura de las imágenes podemos ejecutar train.py y el modelo se almacenará automáticamente en la carpeta que hayamos seleccionado.
+1. **Clonar el repo**
 
-### Uso de la aplicación
+   ```bash
+   git clone https://github.com/tu-usuario/detector-gestos.git
+   cd detector-gestos
+   ```
+2. **Creación del .env**
+    
+    Será necesaria la creación de un archivo .env con las variables de entorno para el proyecto, este archivo deberá incluir la clave de wandb, el resto de de variables ya cuentan con un valor por defecto, en caso de querer cambiarlas deberán incluirse en el archivo.
 
-Después de entrenamiento ya podremos ejecutar main.py y realizar las detecciones de los gestos en tiempo real, la predicción del modelo aparecerá arriba a la izquierda en la pantalla de la cámara.
+3. **Ejecutar las imágenes de Docker**
 
+    Ejecutar la imágen de captura de imágenes de Docker, esto abrirá una ventana con OpenCV y permitirá realizar la captura de las imágenes para el entrenamiento. La captura realiza 500 fotografías para cada gesto.
+
+4. **Entrenar modelo en la imágen train**
+
+    Ejecutar la imágen train, la cuál realizará el entrenamiento del modelo y lo subirá a wandb donde se podrán ver los resultados del entrenamiento.
+
+5. **Ejecutar imágenes api y web**
+
+    Esto abrirá una página web hosteada en un puerto de la máquina donde se podrá subir una imágen y el modelo la analizará para comprobar el gesto que se encuentra en dicha imágen.
+
+## Despliegue en producción (Azure App Service)
+1. **Pre-requisitos**
+
+    - Cuenta de Azure con App Service Linux (plan Standard+ o Premium).
+
+    - Azure CLI instalada y autenticada (az login).
+
+    - Service Principal con rol Contributor (se guardó JSON en secret AZURE_CREDENTIALS).
+
+2. **Configurar GitHub Secrets**
+
+    - `AZURE_CREDENTIALS`: JSON del SP.
+
+    - `AZURE_RESOURCE_GROUP`: upm_mlops
+
+    - `AZURE_WEBAPP_NAME`: detectorGestos
+
+3. **Pipeline CI/CD**
+
+    Con cada push a `ApiDocker`, GitHub Actions:
+
+    - Se autentica (azure/login@v1).
+
+    - Construye frontend (si aplica).
+
+    - Ejecuta
+
+    ```bash
+    az webapp config container set \
+      --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+      --name ${{ secrets.AZURE_WEBAPP_NAME }} \
+      --multicontainer-config-type compose \
+      --multicontainer-config-file docker-compose.yml
+    az webapp restart … 
+    ```
+    - Despliega los 2 contenedores (frontend, API) según docker-compose.prod.yml.
+
+4. **Acceso al servicio**
+
+    - Frontend: `https://detectorgestos-a6b4ghg2fpddfwfz.spaincentral-01.azurewebsites.net`
+
+
+## Enlaces
+- GitHub: https://github.com/Olkvard/gestos_drones/tree/ApiDocker
+
+- W&B Dashboard: https://wandb.ai/a-fuentesr-universidad-politecnica-de-madrid/Deteccion_de_gestos?nw=nwuserafuentesr
+
+- Endpoint Azure: https://detectorgestos-a6b4ghg2fpddfwfz.spaincentral-01.azurewebsites.net

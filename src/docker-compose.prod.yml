@@ -2,15 +2,23 @@ version: "3.8"
 
 services:
   api:
-    image: alfonsofr.azurecr.io/api:ci
+    image: api:latest
+    build:
+      context: ./api
+      dockerfile: Dockerfile
     ports:
-      - "8000:8000"
-    environment:
-      - API_PORT=8000
-      - WANDB_API_KEY=${WANDB_API_KEY}
-      - WANDB_ARTIFACT_PATH=${WANDB_ARTIFACT_PATH}
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/docs"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
+      - "8001:8000"
+    env_file:
+      - .env
+
+  web:
+    image: web:latest
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - api
+    env_file:
+      - .env
