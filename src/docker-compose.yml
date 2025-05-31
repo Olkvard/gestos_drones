@@ -22,7 +22,6 @@ services:
       - api
     env_file:
       - .env
-
   capture:
     build:
       context: ./capture
