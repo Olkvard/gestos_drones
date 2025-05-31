@@ -2,7 +2,7 @@ name: CI‑CD–Test, Build & Deploy to Azure
 
 on:
   push:
-    branches: [ApiDocker]
+    branches: [develop]
 
 jobs:
   detect-changes:
