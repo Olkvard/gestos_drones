@@ -136,6 +136,6 @@ Además incluye un segundo modelo SVM como baseline y compara resultados en W&B.
 ## Enlaces
 - GitHub: https://github.com/Olkvard/gestos_drones/tree/ApiDocker
 
-- W&B Dashboard: https://wandb.ai/a-fuentesr-universidad-politecnica-de-madrid/Deteccion_de_gestos?nw=nwuserafuentesr
+- W&B Dashboard: [https://wandb.ai/a-fuentesr-universidad-politecnica-de-madrid/Deteccion_de_gestos?nw=nwuserafuentesr](https://api.wandb.ai/links/a-fuentesr-universidad-politecnica-de-madrid/ewwd1b6w)
 
 - Endpoint Azure: https://detectorgestos-a6b4ghg2fpddfwfz.spaincentral-01.azurewebsites.net
